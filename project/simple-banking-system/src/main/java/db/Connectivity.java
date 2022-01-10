@@ -4,22 +4,22 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 
-public class Connectivity {
-    private final Connection connection;
-    public Connection getConnection;
+public class Connectivity { private final Connection connection;
 
-    public Connectivity() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
+    public Connectivity() throws SQLException {
+
+
         connection = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/java_training_db",
+                "jdbc:mysql://localhost:3306/week1_case_study_db",
                 "root",
                 "password"
-        );
-        connection.setAutoCommit(false);
-        connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+        ); // trying to make a connectivity
+
+        connection.setAutoCommit(false); // enabling txn management
         System.out.println("---- Connected to MySQL Successfully ----");
     }
 
-
-
+    public Connection getConnection() {
+        return connection;
+    }
 }
