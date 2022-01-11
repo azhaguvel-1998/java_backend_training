@@ -1,4 +1,4 @@
-package com.ani.mvc;
+package com.ani.mvc.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
