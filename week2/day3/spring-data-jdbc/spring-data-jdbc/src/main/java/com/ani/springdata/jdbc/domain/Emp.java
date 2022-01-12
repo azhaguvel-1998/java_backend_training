@@ -1,10 +1,21 @@
-package com.ani.springdatajdbc.domain;
+package com.ani.springdata.jdbc.domain;
+
 
 public class Emp {
     private int id;
     private String name;
     private String dob;
     private Boolean isManager;
+
+    public Emp() {
+    }
+
+    public Emp(int id, String name, String dob, Boolean isManager) {
+        this.id = id;
+        this.name = name;
+        this.dob = dob;
+        this.isManager = isManager;
+    }
 
     public int getId() {
         return id;
