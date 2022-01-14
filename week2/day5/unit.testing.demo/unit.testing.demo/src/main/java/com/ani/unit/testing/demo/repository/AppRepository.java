@@ -9,5 +9,5 @@ import java.util.List;
 public interface AppRepository extends JpaRepository<App, Long> {
     List<App> findByPubBetween(Date st, Date ed);
 
-    ;
+
 }
