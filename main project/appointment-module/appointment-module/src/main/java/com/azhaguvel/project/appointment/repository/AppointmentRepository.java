@@ -11,7 +11,11 @@ import java.util.Optional;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+    Optional<Appointment> findById(Long id);
 
-    List<Appointment> findByAppointmentBetweenAndType(LocalDate st,LocalDate ed,String type);
-    
+    @Override
+    List<Appointment> findAll();
+
+    List<Appointment> findByAppointmentBetween(LocalDate start, LocalDate end);
+
 }

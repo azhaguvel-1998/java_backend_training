@@ -3,59 +3,98 @@ package com.azhaguvel.project.appointment.service;
 
 import com.azhaguvel.project.appointment.domain.Appointment;
 import com.azhaguvel.project.appointment.dto.AppointmentDto;
+import com.azhaguvel.project.appointment.exception.AppointmentAlreadyExisting;
+import com.azhaguvel.project.appointment.exception.DateOutBound;
+import com.azhaguvel.project.appointment.exception.DuplicateException;
 import com.azhaguvel.project.appointment.repository.AppointmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public  class AppointmentServiceImpl implements AppointmentService {
-
     @Autowired
-    public AppointmentRepository repository;
+    private AppointmentRepository repository;
 
     @Override
-    public AppointmentDto createAppointment(AppointmentDto dto) {
-        var appointment = new Appointment();
-        appointment.setType(dto.getType());
-        appointment.setId(dto.getId());
-        appointment.setAppointment(dto.getAppointment());
-        appointment.setPlaced(dto.getPlaced());
-        appointment.setDoctorName(dto.getDoctorName());
-
-        repository.save(appointment);
-        return dto;
+    public AppointmentDto createAppointment(AppointmentDto dto) throws DuplicateException {
+        try {
+            var appoint = new Appointment();
+            appoint.setType(dto.getType());
+            appoint.setAppointment(dto.getAppointment());
+            appoint.setPlaced(dto.getPlaced());
+            appoint.setDoctorName(dto.getDoctorName());
+            repository.save(appoint);
+            return dto;
+        }
+        catch (DataIntegrityViolationException e){
+            throw new DuplicateException("You have entered duplicate key value");
+        }
     }
-
     @Override
-    public LocalDate setAppointment(Long id, LocalDate appointment) {
+    public LocalDate setAppointment(Long id, LocalDate appointment, String type) throws DateOutBound, AppointmentAlreadyExisting {
+
         Optional<Appointment> op = repository.findById(id);
         Appointment baOld = op.orElseThrow();
         LocalDate existingAppointment = baOld.getAppointment();
+        LocalDate today = LocalDate.from(LocalDateTime.now());
+        int compareValue = today.compareTo(appointment);
+        if (compareValue > 0) throw new DateOutBound("Given date is not exceeding today date");
+        String existingType = baOld.getType();
         LocalDate newAppointment = appointment;
+
+        String newType = type;
         Appointment baNew = new Appointment();
         baNew.setAppointment(appointment);
         baNew.setId(baOld.getId());
-        baNew.setType(baOld.getType());
+        baNew.setType(newType);
         baNew.setPlaced(baOld.getPlaced());
         baNew.setDoctorName(baOld.getDoctorName());
+
         repository.save(baNew);
+
         return baNew.getAppointment();
+
+    }
+    @Override
+    public String cancelAppointment(Long id)   {
+        Optional<Appointment> op = repository.findById(id);
+        Appointment baOld = op.orElseThrow();
+        String existingType = baOld.getType();
+        String newType = "cancel";
+        Appointment baNew = new Appointment();
+        baNew.setAppointment(baOld.getAppointment());
+        baNew.setId(baOld.getId());
+        baNew.setType(newType);
+        baNew.setPlaced(baOld.getPlaced());
+        baNew.setDoctorName(baOld.getDoctorName());
+
+        repository.save(baNew);
+
+        return baNew.getType();
+
     }
 
     @Override
-    public String cancelAppointment(Long id) {
-        Appointment op = repository.getById(id);
-        String existingType = op.getType();
-        String newType = "cancel";
-        op.setType(newType);
-        repository.save(op);
-        return op.getType();
-
+    public String updateAppointment(Long id, String type){
+        Optional<Appointment> op = repository.findById(id);
+        Appointment baOld = op.orElseThrow();
+        String existingType = baOld.getType();
+        String newType= type;
+        Appointment baNew = new Appointment();
+        baNew.setAppointment(baOld.getAppointment());
+        baNew.setId(baOld.getId());
+        baNew.setType(newType);
+        baNew.setPlaced(baOld.getPlaced());
+        baNew.setDoctorName(baOld.getDoctorName());
+        repository.save(baNew);
+        return baNew.getType();
     }
 
     @Override
@@ -64,12 +103,13 @@ public  class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentDto> getAppointmentDateBetweenAndType(LocalDate start, LocalDate end,String type) {
-        List<Appointment> app = repository.findByAppointmentBetweenAndType(start, end, type);
+    public List<AppointmentDto> getDaysBetweenDates(LocalDate start, LocalDate end){
+        List<Appointment> app=repository.findByAppointmentBetween(start,end);
         List<AppointmentDto> appdto = new ArrayList<>();
-        for (int i = 0; i < app.size(); i++) {
-            Appointment apps = app.get(i);
-            AppointmentDto dto = new AppointmentDto(
+        for(int i=0;i<app.size();i++)
+        {
+            Appointment apps= app.get(i);
+            AppointmentDto dto=new AppointmentDto(
                     apps.getId(),
                     apps.getType(),
                     apps.getPlaced(),
@@ -80,7 +120,8 @@ public  class AppointmentServiceImpl implements AppointmentService {
             appdto.add(dto);
         }
         return appdto;
+    }
 
 
     }
-}
+

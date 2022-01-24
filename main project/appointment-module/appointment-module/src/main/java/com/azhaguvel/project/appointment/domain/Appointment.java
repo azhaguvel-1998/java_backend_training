@@ -28,7 +28,6 @@ public class Appointment {
     @Column(unique = false, nullable = false)
     private LocalDate appointment;
 
-    @NotNull
     @Column(unique = false, nullable = false)
     private String doctorName;
 
