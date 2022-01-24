@@ -1,9 +1,10 @@
 package com.weektwo.casestudy.dto;
 
-public class amountTransferDto {
+public class AmountTransferDto {
     private Long srcAc;
     private Long dstAc;
     private Double amt;
+
 
     public Long getSrcAc() {
         return srcAc;
@@ -28,4 +29,6 @@ public class amountTransferDto {
     public void setAmt(Double amt) {
         this.amt = amt;
     }
+
+
 }

@@ -28,5 +28,4 @@ public class AppResponse<T> {
     public void setBody(T body) {
         this.body = body;
     }
-
 }

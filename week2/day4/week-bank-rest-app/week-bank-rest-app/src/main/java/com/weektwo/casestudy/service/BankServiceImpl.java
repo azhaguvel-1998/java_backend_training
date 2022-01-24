@@ -6,7 +6,6 @@ import com.weektwo.casestudy.repository.BankRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +18,7 @@ import java.util.Optional;
         rollbackFor = SQLException.class,
         noRollbackFor = InvalidAmountException.class
 )
-@Service
-public class BankServiceImpl implements BankService{
+public class BankServiceImpl implements BankService {
 
     private final Logger logger = LoggerFactory.getLogger(BankServiceImpl.class);
 
@@ -28,9 +26,8 @@ public class BankServiceImpl implements BankService{
     private BankRepository repository;
 
     @Override
-    public int createNewAccount(BankAccount ba) {
+    public void createNewAccount(BankAccount ba) {
         repository.save(ba);
-        return 0;
     }
 
     @Override
@@ -40,20 +37,68 @@ public class BankServiceImpl implements BankService{
 
     @Override
     public boolean activateAccount(Long acNum) {
-        return false;
+        Optional<BankAccount> op = repository.findById(acNum);
+        BankAccount baOld = op.orElseThrow();
+        boolean existingStatus = baOld.getStatus();
+        boolean newStatus = Boolean.parseBoolean("true");
+        BankAccount baNew = new BankAccount();
+        baNew.setBalance(baOld.getBalance());
+        baNew.setAcCrDt(baOld.getAcCrDt());
+        baNew.setStatus(newStatus);
+        baNew.setAcHldNm(baOld.getAcHldNm());
+        baNew.setAcNum(baOld.getAcNum());
+
+        repository.save(baNew);
+
+        return baNew.getStatus();
     }
 
     @Override
     public boolean deActivateAccount(Long acNum) {
-        return false;
+        Optional<BankAccount> op = repository.findById(acNum);
+        BankAccount baOld = op.orElseThrow();
+        boolean existingStatus = baOld.getStatus();
+        boolean newStatus = Boolean.parseBoolean("false");
+        BankAccount baNew = new BankAccount();
+        baNew.setBalance(baOld.getBalance());
+        baNew.setAcCrDt(baOld.getAcCrDt());
+        baNew.setStatus(newStatus);
+        baNew.setAcHldNm(baOld.getAcHldNm());
+        baNew.setAcNum(baOld.getAcNum());
+
+        repository.save(baNew);
+
+        return baNew.getStatus();
     }
 
+
     @Override
-    public double withdraw(Long acNum, double amt) throws InvalidAmountException {
-        logger.info("Withdrawing Money from "+acNum +" with Amount  "+amt);
-        logger.warn("Make sure amount possittive");
-        repository.withdraw(amt, acNum);
-        return amt;
+    public double withdraw1(Long acNum, double amt) throws InvalidAmountException {
+        if (amt <= 0) throw new InvalidAmountException("Amount Should be Non Zero Positive " + amt);
+        Optional<BankAccount> op = repository.findById(acNum);
+
+        BankAccount baOld = op.orElseThrow();
+        double existingBalance = baOld.getBalance();
+
+        Boolean existingStatus = baOld.getStatus();
+
+        if (existingStatus == false) {
+            return 0;
+        } else {
+
+            double newBalance = existingBalance - amt;
+            BankAccount baNew = new BankAccount();
+            baNew.setBalance(newBalance);
+            baNew.setAcCrDt(baOld.getAcCrDt());
+            baNew.setStatus(baOld.getStatus());
+            baNew.setAcHldNm(baOld.getAcHldNm());
+            baNew.setAcNum(baOld.getAcNum());
+
+            repository.save(baNew);
+
+            return baNew.getBalance();
+
+        }
     }
 
     @Override
@@ -61,41 +106,90 @@ public class BankServiceImpl implements BankService{
         // just explanation I am using this strategy
         // it can be done in more efficient way
 
-        if(amt <= 0) throw new InvalidAmountException("Amount Should be Non Zero Positive "+amt);
+        if (amt <= 0) throw new InvalidAmountException("Amount Should be Non Zero Positive " + amt);
 
         Optional<BankAccount> op = repository.findById(acNum);
 
         BankAccount baOld = op.orElseThrow();
         double existingBalance = baOld.getBalance();
-        double newBalance = existingBalance + amt;
 
-        BankAccount baNew = new BankAccount();
-        baNew.setBalance(newBalance);
-        baNew.setAcCrDt(baOld.getAcCrDt());
-        baNew.setStatus(baOld.getStatus());
-        baNew.setAcHldNm(baOld.getAcHldNm());
-        baNew.setAcNum(baOld.getAcNum());
+        Boolean existingStatus = baOld.getStatus();
 
-        repository.save(baNew);
+        if (existingStatus != true) {
+            return 0;
+        } else {
+            double newBalance = existingBalance + amt;
 
-//        withdraw(acNum, 10);
+            BankAccount baNew = new BankAccount();
+            baNew.setBalance(newBalance);
+            baNew.setAcCrDt(baOld.getAcCrDt());
+            baNew.setStatus(baOld.getStatus());
+            baNew.setAcHldNm(baOld.getAcHldNm());
+            baNew.setAcNum(baOld.getAcNum());
 
-        return baNew.getBalance();
+            repository.save(baNew);
+
+            return baNew.getBalance();
+
+        }
     }
 
     @Override
-    public int transferMoney(Long srcAc, Long dstAc, double amt) throws InvalidAmountException {
-        return 0;
+    public double transferMoney(Long acNum, Long acNum2, double amt) throws InvalidAmountException {
+        if (amt <= 0) throw new InvalidAmountException("Amount Should be Non Zero Positive " + amt);
+        Optional<BankAccount> op = repository.findById(acNum);
+
+        BankAccount baOld = op.orElseThrow();
+        double existingBalance = baOld.getBalance();
+        Boolean existingStatus = baOld.getStatus();
+
+        if (existingStatus != true) {
+            return 0;
+        } else {
+            double newBalance = existingBalance - amt;
+
+            BankAccount baNew = new BankAccount();
+            baNew.setBalance(newBalance);
+            baNew.setAcCrDt(baOld.getAcCrDt());
+            baNew.setStatus(baOld.getStatus());
+            baNew.setAcHldNm(baOld.getAcHldNm());
+            baNew.setAcNum(baOld.getAcNum());
+
+            repository.save(baNew);
+
+            Optional<BankAccount> op2 = repository.findById(acNum2);
+            BankAccount baOld2 = op2.orElseThrow();
+            double existingBalance2 = baOld2.getBalance();
+
+            Boolean existingStatus1 = baOld2.getStatus();
+            if (existingStatus1 != true) {
+                return 0;
+            } else {
+                double newBalance2 = existingBalance2 + amt;
+                BankAccount baNew2 = new BankAccount();
+                baNew2.setBalance(newBalance2);
+                baNew2.setAcCrDt(baOld2.getAcCrDt());
+                baNew2.setStatus(baOld2.getStatus());
+                baNew2.setAcHldNm(baOld2.getAcHldNm());
+                baNew2.setAcNum(baOld2.getAcNum());
+
+                repository.save(baNew2);
+
+                return baNew2.getBalance();
+            }
+        }
     }
 
+
     @Override
-    public BankAccount findAccountByAcNum(Long acNum) {
-        return null;
+    public List<BankAccount> findAccountByAcNum(Long acNum) {
+
+        return (List<BankAccount>) repository.findByAcNum(acNum);
     }
 
     @Override
     public List<BankAccount> findAllBankAccounts() {
-        return null;
+        return repository.findAll();
     }
 
     @Override
@@ -103,5 +197,4 @@ public class BankServiceImpl implements BankService{
         return repository.findByAcHldNmStartingWith(prefix);
     }
 }
-
 
