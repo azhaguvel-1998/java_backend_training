@@ -6,7 +6,7 @@ import com.azhaguvel.project.appointment.dto.AppResponse;
 import com.azhaguvel.project.appointment.dto.AppointmentBetweenDto;
 import com.azhaguvel.project.appointment.dto.AppointmentDto;
 import com.azhaguvel.project.appointment.exception.AppointmentAlreadyExisting;
-import com.azhaguvel.project.appointment.exception.DateOutBound;
+import com.azhaguvel.project.appointment.exception.DateOutOfBound;
 import com.azhaguvel.project.appointment.exception.DuplicateException;
 import com.azhaguvel.project.appointment.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/Appointment")
+@RequestMapping("/appoint")
 @RestController
 public class AppointmentController {
     @Autowired
@@ -35,13 +35,13 @@ public class AppointmentController {
         var response = new AppResponse<AppointmentDto>();
         response.setStatus("success");
         response.setMessage("Abc saved successfully");
-        response.setBody(svObj);
+        response.setBody(null);
 
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/SetAppoint")
-    public ResponseEntity<AppResponse<LocalDate>> setAppointment(@Valid @RequestBody AppointmentDto dto) throws DateOutBound {
+    public ResponseEntity<AppResponse<LocalDate>> setAppointment(@Valid @RequestBody AppointmentDto dto) throws DateOutOfBound {
         try {
             LocalDate stat = service.setAppointment(dto.getId(), dto.getAppointment(), dto.getType());
             var response = new AppResponse<LocalDate>();
@@ -49,7 +49,7 @@ public class AppointmentController {
             response.setStatus("success");
             response.setBody(stat);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-        } catch (DateOutBound e) {
+        } catch (DateOutOfBound e) {
             var response = new AppResponse<LocalDate>();
             response.setMessage(e.getMessage());
             response.setStatus("fail");
@@ -63,8 +63,8 @@ public class AppointmentController {
         }
     }
 
-    @PutMapping("/cancleAppoint")
-    public ResponseEntity<AppResponse<String>> cancelAppointment(@Valid @RequestBody AppointmentDto dto) throws DateOutBound{
+    @PutMapping("/cancelAppoint")
+    public ResponseEntity<AppResponse<String>> cancelAppointment(@Valid @RequestBody AppointmentDto dto) throws DateOutOfBound {
         String stat = service.cancelAppointment(dto.getId());
         var response = new AppResponse<String>();
         response.setMessage("Appointment is removed");
@@ -93,7 +93,7 @@ public class AppointmentController {
         var response = new AppResponse<List<AppointmentDto>>();
         response.setStatus("success");
         response.setMessage("List of appointment ");
-        response.setBody(service.getDaysBetweenDates(dto.getStart(), dto.getEnd()));
+        response.setBody(service.getDaysBetweenDates(dto.getStart(),dto.getEnd()));
         return ResponseEntity.ok(response);
     }
 

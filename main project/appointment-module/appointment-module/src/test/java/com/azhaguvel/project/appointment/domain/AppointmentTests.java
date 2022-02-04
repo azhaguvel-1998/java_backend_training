@@ -10,24 +10,35 @@ import java.time.LocalDate;
 
 
 public class AppointmentTests {
+
     @DisplayName("Domain : Checking Object Creation")
     @Test
+    void testObjectCreation() {
+        var abc = new Appointment();
+        Assertions.assertNotNull(abc);
+    }
+
+    @DisplayName("Domain : Checking getters and setters")
+    @Test
     void testObjectGettersSetters() {
-        var appointment = new Appointment();
-        appointment.setType("tb");
-        appointment.setId(25L);
-        appointment.setPlaced(LocalDate.of(2021, 1, 1));
-        appointment.setAppointment(LocalDate.of(2021, 03, 15));
-        appointment.setDoctorName("abc");
-        Assertions.assertEquals(25, appointment.getAppointment());
+        var abc = new Appointment();
+        abc.setId(10L);
+        abc.setType("test");
+        abc.setAppointment(LocalDate.of(2021,1,1));
+        abc.setPlaced(LocalDate.of(2021,1,1));
+        abc.setDoctorName("ajay");
+
+        Assertions.assertEquals(10, abc.getId());
+        Assertions.assertEquals("test" , abc.getType());
         Assertions.assertEquals(
-                Date.valueOf(LocalDate.of(2021, 1, 1)),
-                appointment.getAppointment()
+                (LocalDate.of(2021,1,1)),
+                abc.getAppointment()
         );
-        Assertions.assertEquals("abc" , appointment.getDoctorName());
-        Assertions.assertEquals(25, appointment.getId());
-
-
+        Assertions.assertEquals(
+                (LocalDate.of(2021,1,1)),
+                abc.getPlaced()
+        );
+        Assertions.assertEquals("ajay",abc.getDoctorName());
     }
 
 

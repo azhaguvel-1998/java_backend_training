@@ -4,7 +4,7 @@ package com.azhaguvel.project.appointment.service;
 import com.azhaguvel.project.appointment.domain.Appointment;
 import com.azhaguvel.project.appointment.dto.AppointmentDto;
 import com.azhaguvel.project.appointment.exception.AppointmentAlreadyExisting;
-import com.azhaguvel.project.appointment.exception.DateOutBound;
+import com.azhaguvel.project.appointment.exception.DateOutOfBound;
 import com.azhaguvel.project.appointment.exception.DuplicateException;
 import com.azhaguvel.project.appointment.repository.AppointmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +38,14 @@ public  class AppointmentServiceImpl implements AppointmentService {
         }
     }
     @Override
-    public LocalDate setAppointment(Long id, LocalDate appointment, String type) throws DateOutBound, AppointmentAlreadyExisting {
+    public LocalDate setAppointment(Long id, LocalDate appointment, String type) throws DateOutOfBound, AppointmentAlreadyExisting {
 
         Optional<Appointment> op = repository.findById(id);
         Appointment baOld = op.orElseThrow();
         LocalDate existingAppointment = baOld.getAppointment();
         LocalDate today = LocalDate.from(LocalDateTime.now());
         int compareValue = today.compareTo(appointment);
-        if (compareValue > 0) throw new DateOutBound("Given date is not exceeding today date");
+        if (compareValue > 0) throw new DateOutOfBound("Given date is not exceeding today date");
         String existingType = baOld.getType();
         LocalDate newAppointment = appointment;
 

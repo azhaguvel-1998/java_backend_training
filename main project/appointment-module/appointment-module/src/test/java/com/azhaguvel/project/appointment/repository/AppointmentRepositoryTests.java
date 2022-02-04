@@ -17,22 +17,18 @@ import java.time.LocalDate;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class AppointmentRepositoryTests {
-
     @Autowired
     private AppointmentRepository repository;
 
-
-    @DisplayName("Appointment Repository : Creating Appointment")
+    @DisplayName("Appointment repo : creating ")
     @Test
-    public void testCreateAppointment() {
-
-        var appointment = new Appointment();
-        appointment.setId(1L);
-        appointment.setType("hiv");
-        appointment.setPlaced(LocalDate.now());
-        appointment.setAppointment(LocalDate.now());
-        appointment.setDoctorName("ddd");
-
-        repository.save(appointment);
+    public void testCreateAppointment(){
+        var app = new Appointment();
+        app.setId(15L);
+        app.setType("ipd");
+        app.setAppointment(LocalDate.now());
+        app.setDoctorName("abc");
+        app.setPlaced(LocalDate.now());
+        repository.save(app);
     }
 }
